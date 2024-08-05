@@ -1,0 +1,111 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:composition template="/template.xhtml">
+        <ui:define name="conteudo">
+            <h2>Cadastrar Filmes</h2>
+            <p:panel header="Filmes Cadastrados">
+                <h:form>
+                    <p:outputPanel id="filme">
+                        <p:dataTable id="dataTable" var="filme"
+                                     value="#{filmeBean.all}"
+                                     filteredValue="#{filmeBean.filmesFiltrados}"
+                                     widgetVar="tabelaFilmes"
+                                     emptyMessage="Nenhum registro encontrado">
+                            <p:column headerText="Titulo" filterBy="#{filme.titulo}" filterMatchMode="startsWith">
+                                <h:outputText value="#{filme.titulo}"/>
+                            </p:column>
+                            <p:column headerText="Ano" filterBy="#{filme.ano}" filterMatchMode="startsWith">
+                                <h:outputText value="#{filme.ano}"/>
+                            </p:column>
+                            <p:column filterBy="#{filme.genero}"
+                                      headerText="Genero"
+                                      filterOptions="#{filmeBean.getGeneros(true)}"
+                                      filterMatchMode="exact">
+                                <h:outputText value="#{filme.genero}"/>
+                            </p:column>
+                            <p:column filterBy="oscarMelhorFilme"
+                                      headerText="Oscar de Melhor Filme" footerText="exact"
+                                      filterOptions="#{filmeBean.getOptionsOscarMelhorFilme()}"
+                                      filterMatchMode="exact">
+                                <h:outputText value="#{filme.oscarMelhorFilme?'sim':'nao'}"/>
+                            </p:column>
+                            <p:column filterBy="diretor" headerText="Nome do Diretor" footerText="startsWith">
+                                <h:outputText value="#{filme.diretor.nome}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </p:outputPanel>
+                </h:form>
+                <p:panel>
+                    <p:commandButton value="Cadastrar"
+                                     actionListener="#{filmeBean.inserir}"
+                                     oncomplete="panelFilme.show();"
+                                     update="dadosFilme"/>
+                </p:panel>
+            </p:panel>
+            <p:panel header="Dados do Filme" id="dadosFilme" widgetVar="panelFilme"
+                     visible="false" closable="true" style="margin-top: 10px">
+                <p:messages id="erroAmigo"/>
+                <h:form>
+                    <h:panelGrid id="displayFilme" columns="1" styleClass="grid">
+                        <p:panel>
+                            <h:panelGrid columns="3" columnClasses="label, value" styleClass="grid">
+                                <h:outputText value="Titulo *"/>
+                                <p:inputText id="tituloInputText"
+                                             required="false"
+                                             label="Titulo"
+                                             value="#{filmeBean.value.titulo}"
+                                             styleClass="ipt-large"/>
+                                <p:messages for="tituloInputText"/>
+                                <h:outputText value="Ano *"/>
+                                <p:inputText id="anoInputText"
+                                             required="false"
+                                             label="Ano"
+                                             value="#{filmeBean.value.ano}"
+                                             styleClass="ipt-large"/>
+                                <p:messages for="anoInputText"/>
+                                <h:outputText value="Genero "/>
+                                <p:selectOneMenu id="generoSelectOneMenu"
+                                                 value="#{filmeBean.value.genero}"
+                                                 required="false" label="Genero" style="width: 100px">
+                                    <f:selectItems value="#{filmeBean.getGeneros(false)}"/>
+                                </p:selectOneMenu>
+                                <div>
+                                    <h:outputText value="Melhor Filme "/>
+                                    <p:selectBooleanCheckbox id="oscarSelectBooleanCheckbox"
+                                                             value="#{filmeBean.value.oscarMelhorFilme}"/>
+                                </div>
+                                <h:outputText value="Diretor "/>
+                                <p:autoComplete id="diretorAutoComplete" value="#{filmeBean.value.diretor}"
+                                                completeMethod="#{diretorBean.completaDiretores}"
+                                                converter="#{diretorConverter}"
+                                                var="diretor" itemValue="#{diretor}" itemLabel="#{diretor.nome}"/>
+                                
+                                
+
+                                <div>
+                                    <h:outputText value="Atores "/>
+                                    <p:autoComplete/>
+                                    
+                                </div>
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:panelGrid>
+                    <h:panelGroup rendered="#{not filmeBean.consultar}">
+                        <p:commandButton value="Inserir" action="#{filmeBean.save()}"
+                                         ajax="false" icon="ui-icon-circle-plus"/>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{filmeBean.consultar}">
+                        <!-- Grupo para os comandos Alterar e Remover -->
+                        <p:commandButton value="Alterar" action="#{filmeBean.update()}"
+                                         ajax="false" icon="ui-icon-pencil"/>
+                        <p:commandButton value="Remover" action="#{filmeBean.delete()}"
+                                         ajax="false" icon="ui-icon-trash"/>
+                    </h:panelGroup>
+                </h:form>
+            </p:panel>
+        </ui:define>
+    </ui:composition>
+</html>
